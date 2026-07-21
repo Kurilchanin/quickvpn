@@ -17,7 +17,7 @@ set -euo pipefail
 
 # ---- config (override via env or flags) ------------------------------------
 DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/Kurilchanin/quickvpn/releases/latest/download}"  # prebuilt binaries (GitHub release)
-HUB_REGISTRY="${HUB_REGISTRY:-}"  # hub registry ADNL id (hex) — exit auto-registers with it; filled once the hub is deployed
+HUB_REGISTRY="${HUB_REGISTRY:-3e6b1aba13ce841539c760490ef423e4fcb274770086a8313ac5fc038a0c3d75}"  # NL1 hub registry ADNL id (hex) — exit auto-registers with it; override with --hub
 ROLE="exit"
 EXTERNAL_IP=""            # auto-detect if empty
 WEB_PORT="8088"
