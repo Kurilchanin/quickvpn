@@ -1,4 +1,4 @@
-# GeckoVPN — TON-native VPN nodes
+# QuickVPN — TON-native VPN nodes
 
 Decentralized VPN over TON ADNL. Anyone can run an **exit node** and earn for
 serving traffic — no upfront funds, the node earns and pays its own withdrawal
@@ -7,7 +7,7 @@ gas out of earnings. Payments settle through a **hub** over TON payment channels
 ## Install an exit node (one command)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/Kurilchanin/geckovpn/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Kurilchanin/quickvpn/main/install.sh | sudo bash
 ```
 
 The installer auto-detects your architecture and public IP, downloads the
@@ -20,7 +20,7 @@ Supported: Linux `amd64` / `arm64`. Run as root (the installer uses `sudo`).
 ## Run the payment hub (owner only)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/Kurilchanin/geckovpn/main/install.sh | sudo bash -s -- --role hub
+curl -fsSL https://raw.githubusercontent.com/Kurilchanin/quickvpn/main/install.sh | sudo bash -s -- --role hub
 ```
 
 ## Downloads

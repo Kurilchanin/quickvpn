@@ -3,10 +3,10 @@
 # ton-vpn one-command installer (Mysterium-style).
 #
 #   Exit node (anyone can run one, earns for serving traffic):
-#     curl -fsSL https://raw.githubusercontent.com/Kurilchanin/geckovpn/main/install.sh | sudo bash
+#     curl -fsSL https://raw.githubusercontent.com/Kurilchanin/quickvpn/main/install.sh | sudo bash
 #
 #   Payment hub (owner only, installed once):
-#     curl -fsSL https://raw.githubusercontent.com/Kurilchanin/geckovpn/main/install.sh | sudo bash -s -- --role hub
+#     curl -fsSL https://raw.githubusercontent.com/Kurilchanin/quickvpn/main/install.sh | sudo bash -s -- --role hub
 #
 # It auto-detects arch / public IP / WAN interface, downloads the prebuilt
 # binary (with the payment fix + web panel baked in), generates keys on first
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ---- config (override via env or flags) ------------------------------------
-DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/Kurilchanin/geckovpn/releases/latest/download}"  # prebuilt binaries (GitHub release)
+DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/Kurilchanin/quickvpn/releases/latest/download}"  # prebuilt binaries (GitHub release)
 HUB_PUBKEY="${HUB_PUBKEY:-1s03NCKokM3jixqojkVB21UM5mcuLiJiYSsKBRPJoDE=}"  # testnet hub payment pubkey (for auto-registration)
 ROLE="exit"
 EXTERNAL_IP=""            # auto-detect if empty
