@@ -169,7 +169,7 @@ ok "service $BIN started"
 sleep 3
 KEYS="$STATE_DIR/payments.keys.json"
 TOKEN_FILE="$STATE_DIR/web.token"
-WALLET="$(journalctl -u "$BIN" -n 200 --no-pager 2>/dev/null | grep -oE '(FUND THIS[^:]*): \S+' | tail -1 | awk '{print $NF}')"
+WALLET="$(journalctl -u "$BIN" -n 200 --no-pager 2>/dev/null | grep 'FUND THIS' | tail -1 | awk '{print $NF}')"
 PUBKEY="$(journalctl -u "$BIN" -n 200 --no-pager 2>/dev/null | grep -oE 'payment pubkey[^:]*: \S+' | tail -1 | awk '{print $NF}')"
 TOKEN=""; [ -f "$TOKEN_FILE" ] && TOKEN="$(cat "$TOKEN_FILE")"
 
