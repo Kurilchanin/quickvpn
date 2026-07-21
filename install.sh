@@ -17,11 +17,12 @@ set -euo pipefail
 
 # ---- config (override via env or flags) ------------------------------------
 DOWNLOAD_BASE="${DOWNLOAD_BASE:-https://github.com/Kurilchanin/quickvpn/releases/latest/download}"  # prebuilt binaries (GitHub release)
-HUB_PUBKEY="${HUB_PUBKEY:-1s03NCKokM3jixqojkVB21UM5mcuLiJiYSsKBRPJoDE=}"  # testnet hub payment pubkey (for auto-registration)
+HUB_REGISTRY="${HUB_REGISTRY:-}"  # hub registry ADNL id (hex) — exit auto-registers with it; filled once the hub is deployed
 ROLE="exit"
 EXTERNAL_IP=""            # auto-detect if empty
 WEB_PORT="8088"
 PRICE_PER_PACKET="1000"   # nano-TON per forwarded packet (exit only)
+COUNTRY=""                # display label advertised to clients, e.g. NL
 ENABLE_WEB=1
 
 info()  { printf '\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -36,7 +37,8 @@ while [ $# -gt 0 ]; do
     --external-ip)   EXTERNAL_IP="${2:?}"; shift 2 ;;
     --web-port)      WEB_PORT="${2:?}"; shift 2 ;;
     --price)         PRICE_PER_PACKET="${2:?}"; shift 2 ;;
-    --hub-pubkey)    HUB_PUBKEY="${2:?}"; shift 2 ;;
+    --country)       COUNTRY="${2:?}"; shift 2 ;;
+    --hub)           HUB_REGISTRY="${2:?}"; shift 2 ;;
     --download-base) DOWNLOAD_BASE="${2:?}"; shift 2 ;;
     --no-web)        ENABLE_WEB=0; shift ;;
     -h|--help)
@@ -88,12 +90,19 @@ if [ "$ROLE" = "exit" ]; then
   open_port udp 9059   # payment gateway (external-port + 1)
 else
   open_port udp 9060   # hub payment gateway
+  open_port udp 9061   # node registry gateway (exits auto-register here)
 fi
 [ "$ENABLE_WEB" = "1" ] && open_port tcp "$WEB_PORT"
 ok "firewall rules applied (ufw, if present)"
 
 WEB_ARGS=""
 [ "$ENABLE_WEB" = "1" ] && WEB_ARGS="-web-addr 0.0.0.0:$WEB_PORT"
+
+REG_ARGS=""
+if [ "$ROLE" = "exit" ] && [ -n "$HUB_REGISTRY" ]; then
+  REG_ARGS="-hub $HUB_REGISTRY"
+  [ -n "$COUNTRY" ] && REG_ARGS="$REG_ARGS -country $COUNTRY"
+fi
 
 # ---- systemd unit ----------------------------------------------------------
 UNIT="/etc/systemd/system/$BIN.service"
@@ -113,6 +122,7 @@ ExecStart=/usr/local/bin/ton-vpn-node \\
   -key $STATE_DIR/node.key \\
   -payments \\
   -price-per-packet $PRICE_PER_PACKET \\
+  $REG_ARGS \\
   $WEB_ARGS
 # Persist forwarding across restarts (ufw FORWARD policy is often DROP).
 ExecStartPost=/bin/sh -c "iptables -C FORWARD -i ton0 -j ACCEPT 2>/dev/null || iptables -I FORWARD 1 -i ton0 -j ACCEPT"
@@ -177,7 +187,10 @@ if [ "$ROLE" = "exit" ]; then
   echo "  You bring no money — the node earns as it serves traffic."
   echo "  It auto-registers with the hub and joins the network."
 else
+  REGID="$(journalctl -u "$BIN" -n 200 --no-pager 2>/dev/null | grep -oE 'register with: -hub \S+' | tail -1 | awk '{print $NF}')"
   echo "  Fund the hub wallet (liquidity + gas) from the web panel."
+  [ -n "$REGID" ] && echo "  Registry ID: $REGID"
+  [ -n "$REGID" ] && echo "  (exits join with:  ... | sudo bash -s -- --hub $REGID)"
 fi
 echo   "  Logs:       journalctl -u $BIN -f"
 echo
